@@ -2,6 +2,7 @@ com\family\repository\ReactionRepository.class
 com\family\security\services\UserDetailsServiceImpl.class
 com\family\model\Post.class
 com\family\model\Comment.class
+com\family\security\oauth2\OAuth2LoginSuccessHandler.class
 com\family\security\services\UserDetailsImpl.class
 com\family\controller\PostController.class
 com\family\payload\request\LoginRequest.class

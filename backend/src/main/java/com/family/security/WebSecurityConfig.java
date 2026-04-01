@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.family.security.services.UserDetailsServiceImpl;
+import com.family.security.oauth2.OAuth2LoginSuccessHandler;
 
 @Configuration
 @EnableMethodSecurity
@@ -32,6 +33,9 @@ public class WebSecurityConfig {
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public AuthTokenFilter authTokenFilter() {
@@ -63,17 +67,11 @@ public class WebSecurityConfig {
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> 
-                auth.requestMatchers("/api/auth/**", "/login/**", "/oauth2/**").permitAll()
+                auth.requestMatchers("/api/auth/**", "/login/**").permitAll()
                     .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
-                .successHandler((request, response, authentication) -> {
-                    // This is where we will handle successful Google login, 
-                    // create/update the user in our DB, and redirect with JWT
-                    System.out.println("OAuth2 Login Success: " + authentication.getName());
-                    // Placeholder redirect for now
-                    response.sendRedirect("http://localhost:5173/?token=TEMP_TOKEN");
-                })
+                .successHandler(oAuth2LoginSuccessHandler)
             );
 
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
