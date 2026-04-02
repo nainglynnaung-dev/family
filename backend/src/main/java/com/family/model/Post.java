@@ -19,5 +19,12 @@ public class Post {
     private String content;
     private String mediaUrl;
     
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private java.util.List<Reaction> reactions;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private java.util.List<Comment> comments;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 }

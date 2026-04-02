@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
+@org.springframework.transaction.annotation.Transactional
 public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
@@ -47,8 +48,8 @@ public class AuthController {
 
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail()));
+                userDetails.getEmail(),
+                userDetails.getName()));
     }
 
     @PostMapping("/signup")
@@ -65,8 +66,20 @@ public class AuthController {
         user.setName(signUpRequest.getName());
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
 
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        // Sign in automatically after registration
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(signUpRequest.getEmail(), signUpRequest.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtUtils.generateJwtToken(authentication);
+        
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal(); 
+
+        return ResponseEntity.ok(new JwtResponse(jwt,
+                userDetails.getId(),
+                userDetails.getEmail(),
+                userDetails.getName()));
     }
 }

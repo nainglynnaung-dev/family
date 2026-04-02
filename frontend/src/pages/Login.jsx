@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import '../index.css';
 
 export default function Login({ onLogin }) {
@@ -16,13 +16,8 @@ export default function Login({ onLogin }) {
     const payload = isLogin ? { email, password } : { name, email, password };
 
     try {
-      const response = await axios.post(`http://localhost:8080${endpoint}`, payload);
-      if (isLogin) {
-        onLogin(response.data.token);
-      } else {
-        setIsLogin(true);
-        setError('Registered successfully, please log in.');
-      }
+      const response = await api.post(endpoint, payload);
+      onLogin(response.data.token);
     } catch (err) {
       setError(err.response?.data?.message || 'Authentication failed');
     }
@@ -81,10 +76,20 @@ export default function Login({ onLogin }) {
           </button>
         </p>
 
-        <div style={{ marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <a href="http://localhost:8080/oauth2/authorization/google" className="btn glass" style={{ width: '100%', color: 'white' }}>
-              Sign in with Google
-            </a>
+        <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '1.5rem' }}>
+          <button 
+            type="button" 
+            onClick={async () => {
+              setEmail('admin@family.com');
+              setPassword('password123');
+              const response = await api.post('/api/auth/signin', { email: 'admin@family.com', password: 'password123' });
+              onLogin(response.data.token);
+            }} 
+            className="btn" 
+            style={{ width: '100%', background: 'rgba(255,255,255,0.2)', color: 'white' }}
+          >
+            🚀 Use Demo Account
+          </button>
         </div>
       </div>
     </div>

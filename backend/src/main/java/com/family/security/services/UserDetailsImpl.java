@@ -3,6 +3,7 @@ package com.family.security.services;
 import com.family.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -14,13 +15,15 @@ public class UserDetailsImpl implements UserDetails {
 
     private Long id;
     private String email;
+    private String name;
 
     @JsonIgnore
     private String password;
 
-    public UserDetailsImpl(Long id, String email, String password) {
+    public UserDetailsImpl(Long id, String email, String name, String password) {
         this.id = id;
         this.email = email;
+        this.name = name;
         this.password = password;
     }
 
@@ -28,12 +31,13 @@ public class UserDetailsImpl implements UserDetails {
         return new UserDetailsImpl(
                 user.getId(),
                 user.getEmail(),
+                user.getName(),
                 user.getPassword());
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); // Simplified for now
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     public Long getId() {
@@ -42,6 +46,10 @@ public class UserDetailsImpl implements UserDetails {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

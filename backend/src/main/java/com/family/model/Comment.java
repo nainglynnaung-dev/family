@@ -14,6 +14,7 @@ public class Comment {
     
     @ManyToOne
     @JoinColumn(name = "post_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Post post;
     
     @ManyToOne
